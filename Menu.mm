@@ -1,7 +1,6 @@
 #import "Menu.h"
 #import <mach/mach.h>
 
-// BẠN CÓ THỂ SỬA OFFSET TẠI ĐÂY SAU NÀY
 #define OFF_SCORE 0x1F777B64
 #define BASE_ADDR 0x100000000
 
@@ -24,5 +23,6 @@
     overlay.windowLevel = UIWindowLevelAlert + 1;
     overlay.rootViewController = [UIViewController new];
     overlay.rootViewController.view.backgroundColor = [UIColor clearColor];
-    overlay.h
+    overlay.hidden = NO;
 
+    UIButton *btn = [UIButto
