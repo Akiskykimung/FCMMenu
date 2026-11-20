@@ -1,0 +1,9 @@
+Package: com.freddy.fcmenu
+Name: FCMMenu
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Auto Score for FC Mobile
+Maintainer: Freddy
+Author: Freddy
+Section: Tweaks
+Depends: mobilesubstrate
