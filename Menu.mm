@@ -6,6 +6,7 @@
 #define BASE_ADDR 0x100000000
 
 @implementation Menu
+
 + (instancetype)sharedInstance {
     static Menu *instance = nil;
     static dispatch_once_t onceToken;
@@ -26,4 +27,4 @@
     overlay.rootViewController.view.backgroundColor = [UIColor clearColor];
     overlay.hidden = NO;
 
-    
+   
