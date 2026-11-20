@@ -10,7 +10,9 @@
 + (instancetype)sharedInstance {
     static Menu *instance = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[Menu alloc] init]; });
+    dispatch_once(&onceToken, ^{ 
+        instance = [[Menu alloc] init]; 
+    });
     return instance;
 }
 
@@ -25,6 +27,4 @@
     overlay.windowLevel = UIWindowLevelAlert + 1;
     overlay.rootViewController = [UIViewController new];
     overlay.rootViewController.view.backgroundColor = [UIColor clearColor];
-    overlay.hidden = NO;
-
-   
+    overlay.hid
