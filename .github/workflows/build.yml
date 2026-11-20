@@ -1,4 +1,4 @@
- name: Build Dylib
+name: Build Dylib
 on: [push, workflow_dispatch]
 jobs:
   build:
