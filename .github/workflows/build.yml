@@ -1,27 +1,25 @@
-
-name: Build Dylib
+ name: Build Dylib
 on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Install Dependencies
+    
+    - name: Setup Theos and SDKs
       run: |
         brew install ldid dpkg
-    - name: Setup Theos
-      run: |
         git clone --recursive https://github.com/theos/theos.git $HOME/theos
+        git clone --depth 1 https://github.com/theos/sdks.git $HOME/theos/sdks
         echo "THEOS=$HOME/theos" >> $GITHUB_ENV
-    - name: Build Dylib Only
+        
+    - name: Build Dylib
       run: |
         make clean
         make
+        
     - name: Upload Dylib
       uses: actions/upload-artifact@v4
       with:
         name: FCMMenu-Dylib
-        path: .theos/obj/arm64/FCMMenu.dylib￼
-
-
-
+        path: .theos/obj/arm64/FCMMenu.dylib
