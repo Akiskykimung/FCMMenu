@@ -5,6 +5,10 @@
 #define OFF_SCORE 0x1F777B64
 #define BASE_ADDR 0x100000000
 
+@interface Menu ()
+@property (nonatomic, strong) UIWindow *menuWindow;
+@end
+
 @implementation Menu
 
 + (instancetype)sharedInstance {
@@ -28,6 +32,8 @@
     overlay.rootViewController = [UIViewController new];
     overlay.rootViewController.view.backgroundColor = [UIColor clearColor];
     [overlay setHidden:NO];
+    
+    self.menuWindow = overlay; // Lưu lại window
 
     UIButton *btn = [UIButton buttonWithType:UIButtonTypeSystem];
     btn.frame = CGRectMake(20, 100, 60, 60);
@@ -48,7 +54,9 @@
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"FCMMenu" message:@"Đã đẩy tỷ số!" preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
     
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+    if (self.menuWindow) {
+        [self.menuWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+    }
 }
 
 @end
