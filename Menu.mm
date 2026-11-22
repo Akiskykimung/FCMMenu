@@ -27,5 +27,28 @@
     overlay.windowLevel = UIWindowLevelAlert + 1;
     overlay.rootViewController = [UIViewController new];
     overlay.rootViewController.view.backgroundColor = [UIColor clearColor];
-    overlay.hid
+    [overlay setHidden:NO];
 
+    UIButton *btn = [UIButton buttonWithType:UIButtonTypeSystem];
+    btn.frame = CGRectMake(20, 100, 60, 60);
+    btn.backgroundColor = [UIColor colorWithRed:0.2 green:0.9 blue:0.6 alpha:0.8];
+    btn.layer.cornerRadius = 30;
+    [btn setTitle:@"99" forState:UIControlStateNormal];
+    [btn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    btn.titleLabel.font = [UIFont boldSystemFontOfSize:24];
+    [btn addTarget:self action:@selector(btnTapped) forControlEvents:UIControlEventTouchUpInside];
+    
+    [overlay.rootViewController.view addSubview:btn];
+}
+
+- (void)btnTapped {
+    uint64_t finalAddr = BASE_ADDR + OFF_SCORE;
+    [self writeMemoryAt:finalAddr value:99];
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"FCMMenu" message:@"Đã đẩy tỷ số!" preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+}
+
+@end
