@@ -5,6 +5,20 @@
 #define OFF_SCORE 0x1F777B64
 #define BASE_ADDR 0x100000000
 
+// Class này giúp cửa sổ trong suốt, cho phép chạm xuyên qua
+@interface PassThroughWindow : UIWindow
+@end
+
+@implementation PassThroughWindow
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    UIView *hitView = [super hitTest:point withEvent:event];
+    if (hitView == self || hitView == self.rootViewController.view) {
+        return nil; 
+    }
+    return hitView;
+}
+@end
+
 @interface Menu ()
 @property (nonatomic, strong) UIWindow *menuWindow;
 @end
@@ -27,13 +41,14 @@
 }
 
 - (void)showMenuOnWindow:(UIWindow *)window {
-    UIWindow *overlay = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    // Dùng PassThroughWindow thay vì UIWindow
+    PassThroughWindow *overlay = [[PassThroughWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     overlay.windowLevel = UIWindowLevelAlert + 1;
     overlay.rootViewController = [UIViewController new];
     overlay.rootViewController.view.backgroundColor = [UIColor clearColor];
     [overlay setHidden:NO];
     
-    self.menuWindow = overlay; // Lưu lại window
+    self.menuWindow = overlay; 
 
     UIButton *btn = [UIButton buttonWithType:UIButtonTypeSystem];
     btn.frame = CGRectMake(20, 100, 60, 60);
