@@ -9,7 +9,6 @@
 @end
 
 @implementation PassThroughWindow
-// Cho phép chạm xuyên qua cửa sổ
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
     UIView *hitView = [super hitTest:point withEvent:event];
     if (hitView == self || hitView == self.rootViewController.view) {
@@ -17,7 +16,6 @@
     }
     return hitView;
 }
-// Tuyệt đối không cướp quyền điều khiển của Game
 - (BOOL)canBecomeKeyWindow {
     return NO; 
 }
@@ -62,14 +60,12 @@
     btn.titleLabel.font = [UIFont boldSystemFontOfSize:13];
     [btn addTarget:self action:@selector(btnTapped) forControlEvents:UIControlEventTouchUpInside];
     
-    // Thêm tính năng kéo thả nút
     UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
     [btn addGestureRecognizer:pan];
     
     [overlay.rootViewController.view addSubview:btn];
 }
 
-// Hàm xử lý kéo thả
 - (void)handlePan:(UIPanGestureRecognizer *)pan {
     CGPoint translation = [pan translationInView:self.menuWindow];
     pan.view.center = CGPointMake(pan.view.center.x + translation.x, pan.view.center.y + translation.y);
@@ -92,20 +88,8 @@
         [self writeMemoryAt:finalAddr value:val];
     }]];
     
-    // Hiển thị Alert thông qua cửa sổ chính của Game, không dùng cửa sổ Menu
-    UIViewController *rootVC = self.menuWindow.rootViewController;
-    // Tìm controller đang hiển thị trên cùng của game để present
-    UIWindow *mainWindow = nil;
-    for (UIWindow *w in [UIApplication sharedApplication].windows) {
-        if (w != self.menuWindow && w.isKeyWindow) {
-            mainWindow = w;
-            break;
-        }
-    }
-    if (!mainWindow) {
-        mainWindow = [UIApplication sharedApplication].windows.firstObject;
-    }
-    
+    // Lấy cửa sổ chính của App để hiển thị (không dùng isKeyWindow nữa)
+    UIWindow *mainWindow = [UIApplication sharedApplication].windows.firstObject;
     UIViewController *presenter = mainWindow.rootViewController;
     while (presenter.presentedViewController) {
         presenter = presenter.presentedViewController;
