@@ -5,17 +5,21 @@
 #define OFF_SCORE 0x1F777B64
 #define BASE_ADDR 0x100000000
 
-// Class này giúp cửa sổ trong suốt, cho phép chạm xuyên qua
 @interface PassThroughWindow : UIWindow
 @end
 
 @implementation PassThroughWindow
+// Cho phép chạm xuyên qua cửa sổ
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
     UIView *hitView = [super hitTest:point withEvent:event];
     if (hitView == self || hitView == self.rootViewController.view) {
         return nil; 
     }
     return hitView;
+}
+// Tuyệt đối không cướp quyền điều khiển của Game
+- (BOOL)canBecomeKeyWindow {
+    return NO; 
 }
 @end
 
@@ -41,7 +45,6 @@
 }
 
 - (void)showMenuOnWindow:(UIWindow *)window {
-    // Dùng PassThroughWindow thay vì UIWindow
     PassThroughWindow *overlay = [[PassThroughWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     overlay.windowLevel = UIWindowLevelAlert + 1;
     overlay.rootViewController = [UIViewController new];
@@ -51,27 +54,63 @@
     self.menuWindow = overlay; 
 
     UIButton *btn = [UIButton buttonWithType:UIButtonTypeSystem];
-    btn.frame = CGRectMake(20, 100, 60, 60);
-    btn.backgroundColor = [UIColor colorWithRed:0.2 green:0.9 blue:0.6 alpha:0.8];
-    btn.layer.cornerRadius = 30;
-    [btn setTitle:@"99" forState:UIControlStateNormal];
+    btn.frame = CGRectMake(20, 100, 80, 50);
+    btn.backgroundColor = [UIColor colorWithRed:0.2 green:0.9 blue:0.6 alpha:0.9];
+    btn.layer.cornerRadius = 12;
+    [btn setTitle:@"SET SCORE" forState:UIControlStateNormal];
     [btn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    btn.titleLabel.font = [UIFont boldSystemFontOfSize:24];
+    btn.titleLabel.font = [UIFont boldSystemFontOfSize:13];
     [btn addTarget:self action:@selector(btnTapped) forControlEvents:UIControlEventTouchUpInside];
+    
+    // Thêm tính năng kéo thả nút
+    UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+    [btn addGestureRecognizer:pan];
     
     [overlay.rootViewController.view addSubview:btn];
 }
 
+// Hàm xử lý kéo thả
+- (void)handlePan:(UIPanGestureRecognizer *)pan {
+    CGPoint translation = [pan translationInView:self.menuWindow];
+    pan.view.center = CGPointMake(pan.view.center.x + translation.x, pan.view.center.y + translation.y);
+    [pan setTranslation:CGPointZero inView:self.menuWindow];
+}
+
 - (void)btnTapped {
-    uint64_t finalAddr = BASE_ADDR + OFF_SCORE;
-    [self writeMemoryAt:finalAddr value:99];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"FCMMenu" message:@"Nhập tỷ số bạn muốn:" preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"FCMMenu" message:@"Đã đẩy tỷ số!" preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.keyboardType = UIKeyboardTypeNumberPad;
+        textField.placeholder = @"Ví dụ: 99";
+    }];
     
-    if (self.menuWindow) {
-        [self.menuWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Hủy" style:UIAlertActionStyleCancel handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Áp dụng" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        NSString *input = alert.textFields.firstObject.text;
+        int val = [input intValue];
+        uint64_t finalAddr = BASE_ADDR + OFF_SCORE;
+        [self writeMemoryAt:finalAddr value:val];
+    }]];
+    
+    // Hiển thị Alert thông qua cửa sổ chính của Game, không dùng cửa sổ Menu
+    UIViewController *rootVC = self.menuWindow.rootViewController;
+    // Tìm controller đang hiển thị trên cùng của game để present
+    UIWindow *mainWindow = nil;
+    for (UIWindow *w in [UIApplication sharedApplication].windows) {
+        if (w != self.menuWindow && w.isKeyWindow) {
+            mainWindow = w;
+            break;
+        }
     }
+    if (!mainWindow) {
+        mainWindow = [UIApplication sharedApplication].windows.firstObject;
+    }
+    
+    UIViewController *presenter = mainWindow.rootViewController;
+    while (presenter.presentedViewController) {
+        presenter = presenter.presentedViewController;
+    }
+    [presenter presentViewController:alert animated:YES completion:nil];
 }
 
 @end
