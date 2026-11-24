@@ -1,4 +1,4 @@
- #import <UIKit/UIKit.h>
+#import <UIKit/UIKit.h>
 #import "Menu.h"
 #import <mach/mach.h>
 
@@ -88,8 +88,24 @@
         [self writeMemoryAt:finalAddr value:val];
     }]];
     
-    // Lấy cửa sổ chính của App để hiển thị (không dùng isKeyWindow nữa)
-    UIWindow *mainWindow = [UIApplication sharedApplication].windows.firstObject;
+    // Dùng connectedScenes để lấy cửa sổ chính (chuẩn iOS mới)
+    UIWindow *mainWindow = nil;
+    for (UIScene *scene in [UIApplication sharedApplication].connectedScenes) {
+        if ([scene isKindOfClass:[UIWindowScene class]]) {
+            UIWindowScene *windowScene = (UIWindowScene *)scene;
+            for (UIWindow *window in windowScene.windows) {
+                if (window.isKeyWindow) {
+                    mainWindow = window;
+                    break;
+                }
+            }
+        }
+    }
+    
+    if (!mainWindow) {
+        mainWindow = self.menuWindow;
+    }
+    
     UIViewController *presenter = mainWindow.rootViewController;
     while (presenter.presentedViewController) {
         presenter = presenter.presentedViewController;
